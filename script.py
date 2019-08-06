@@ -1,6 +1,7 @@
 import os
 import getpass
 import time
+import getpass
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,19 +13,21 @@ from selenium.common.exceptions import NoSuchElementException
 def getFirefox():
 
 	op = webdriver.firefox.options.Options()
-	op.headless = True
+	# op.headless = True
 
 	profile = webdriver.FirefoxProfile()
 	profile.set_preference("javascript.enabled", True)
 
-	webEngine = webdriver.Firefox(profile,options=op)
-
-	return webEngine
+	return webdriver.Firefox(profile,options=op)
 
 
 webEngine = getFirefox()
 elem = 'just_a_place_holder'
-data_file_location = "/home/kenzo/Prj/Auto_reg"
+data_file_location = "/home/kenzo/test/test.txt"
+
+data = open(data_file_location,'r').read().strip().split()
+handle = data[0]
+password = data[1]
 
 
 def fetchCodeforces():
@@ -33,10 +36,9 @@ def fetchCodeforces():
 
     webEngine.get("http://www.codeforces.com/contests")
     elem = WebDriverWait(webEngine,5).until(
-	    
-	    EC.presence_of_element_located((By.CSS_SELECTOR, "div.lang-chooser"))
+	EC.presence_of_element_located((By.CSS_SELECTOR, "div.lang-chooser"))
+	)
 
-	    )
 
 def login():
 
@@ -49,28 +51,14 @@ def login():
 	handle_elem = WebDriverWait(webEngine, 5).until(
 	EC.presence_of_element_located((By.NAME, "handleOrEmail"))
 	)
-	
-	curr_path = os.getcwd()
-	
-	#if curr_path == '/usr/bin'
-	if curr_path is '/home/kenzo/Prj/Auto_reg':
-	       f = open("/home/kenzo/test/test.sh",'r') 
-	       data = f.read()
-	       print(data)
-	       return False
-    
-	else :
-	
-	    handle = input("enter codeforces handle\n")
-	    password = getpass.getpass(prompt='Password: ') 
-	
+
 	handle_elem.send_keys(handle)
 	webEngine.find_element_by_name('password').send_keys(password)
 	webEngine.find_element_by_class_name('submit').submit()
 	
 	print("credentials submitted")
 
-	handle_elem = WebDriverWait(webEngine,5).until(
+	handle_elem = WebDriverWait(webEngine,10).until(
 		EC.presence_of_element_located((By.CSS_SELECTOR,"div.lang-chooser"))
 		)
 	
@@ -142,7 +130,6 @@ def main():
            
 
 
-
+print(handle," ",password)
 main()
-
 
