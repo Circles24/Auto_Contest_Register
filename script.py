@@ -2,6 +2,7 @@ import os
 import getpass
 import time
 import getpass
+import time
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -13,7 +14,7 @@ from selenium.common.exceptions import NoSuchElementException
 def getFirefox():
 
 	op = webdriver.firefox.options.Options()
-	# op.headless = True
+	op.headless = True
 
 	profile = webdriver.FirefoxProfile()
 	profile.set_preference("javascript.enabled", True)
@@ -35,7 +36,7 @@ def fetchCodeforces():
     global elem
 
     webEngine.get("http://www.codeforces.com/contests")
-    elem = WebDriverWait(webEngine,5).until(
+    elem = WebDriverWait(webEngine,30).until(
 	EC.presence_of_element_located((By.CSS_SELECTOR, "div.lang-chooser"))
 	)
 
@@ -43,12 +44,11 @@ def fetchCodeforces():
 def login():
 
 	print("@ login")
-	
 	global elem
 
 	elem = webEngine.find_element_by_link_text('Enter').click()
 
-	handle_elem = WebDriverWait(webEngine, 5).until(
+	handle_elem = WebDriverWait(webEngine, 30).until(
 	EC.presence_of_element_located((By.NAME, "handleOrEmail"))
 	)
 
@@ -58,9 +58,8 @@ def login():
 	
 	print("credentials submitted")
 
-	handle_elem = WebDriverWait(webEngine,10).until(
-		EC.presence_of_element_located((By.CSS_SELECTOR,"div.lang-chooser"))
-		)
+	time.sleep(10)
+	fetchCodeforces()
 	
 	if "Logout" in webEngine.page_source:
             return True
@@ -72,42 +71,38 @@ def login():
 
 def main():
 
+    print("attempting auto registration")
     attempts = 0
+    global elem
 
     while True:
-    
-        global elem
-    
-        print("attempting auto registration")
-        
+               
         attempts += 1
         fetchCodeforces()
         print("attempt :: ",attempts)
                 
         if 'Enter' in elem.text:
             
-            print("fetched Codeforces")  
-                      
+            print("fetched Codeforces")
+
             while True:
-                if login() is True:
-                    break
-                else :
-                    print("failed")
-                    
-                    choice = input("y/n")
-                    if choice is not 'y':
-                        return
+
+            	if login() is True:
+            		break
+
+            	elif attempts > 10:
+            		return          
             
             try:
 
                 elem = webEngine.find_element_by_class_name("datatable")
                 elem.find_element_by_partial_link_text('Register').click()
-                elem = WebDriverWait(webEngine, 10).until(
+                elem = WebDriverWait(webEngine, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input.submit"))
                 )
                 elem.submit()
                   
-                print("Sucessfull registered")
+                print("Sucessfully registered")
             
             except NoSuchElementException :
                 print ("no contest available for registration")
@@ -128,8 +123,5 @@ def main():
         
         
            
-
-
-print(handle," ",password)
 main()
 
